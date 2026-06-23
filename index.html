@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-0: #0d1117;
+    --bg-1: #161b22;
+    --bg-2: #1f2d3d;
+    --border: #30363d;
+    --text-primary: #e6edf3;
+    --text-muted: #7d8590;
+    --accent: #388bfd;
+    --accent-dim: #1f4168;
+    --tag-text: #79c0ff;
+    --font-mono: 'Courier New', monospace;
+    --font-sans: system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    background: var(--bg-0);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* ─── Header ─── */
+  header {
+    border-bottom: 0.5px solid var(--border);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  header h1 {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+
+  header p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ─── Tag filter ─── */
+  .tag-filter {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .tag-btn {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 0.5px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tag-btn.active,
+  .tag-btn:hover {
+    background: var(--bg-2);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ─── Grid ─── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 16px;
+  }
+
+  /* ─── Card ─── */
+  .card {
+    background: var(--bg-1);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: border-color 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card:hover { border-color: var(--accent); }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--bg-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .gh-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 4px 10px;
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .gh-link:hover {
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+  }
+
+  .card-title {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .card-desc {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    flex-grow: 1;
+  }
+
+  .tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tech-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--bg-2);
+    color: var(--tag-text);
+    border: 0.5px solid var(--accent-dim);
+  }
+
+  /* ─── Stats ─── */
+  footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 0.5px solid var(--border);
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  footer span { color: var(--text-primary); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div>
+      <!-- ★ 自分の名前やタイトルに変更してください -->
+      <h1>~/portfolio</h1>
+      <p>Web application projects</p>
+    </div>
+  </header>
+
+  <div class="tag-filter" id="tag-filter"></div>
+  <div class="grid" id="grid"></div>
+
+  <footer>
+    <div>projects <span id="count"></span></div>
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================
+   ★ ここを編集してプロジェクトを管理します
+   ============================================================
+
+   各プロジェクトの項目:
+     title  : リポジトリ名 or 表示名
+     desc   : 一言説明（日本語OK）
+     url    : GitHubリポジトリのURL
+     tags   : 使用技術の配列（フィルター用）
+     icon   : カードに表示する絵文字
+
+   プロジェクトの追加：このオブジェクトをコピーして , で繋げるだけ
+   プロジェクトの削除：該当の {} ブロックを丸ごと削除
+   ============================================================ */
+const PROJECTS = [
+  {
+    title: "task-board",
+    desc: "ドラッグ&ドロップ対応のカンバンボード。リアルタイム同期機能付き。",
+    url: "https://github.com/yourname/task-board",
+    tags: ["React", "TypeScript", "Firebase"],
+    icon: "📋"
+  },
+  {
+    title: "link-shortener",
+    desc: "カスタムスラッグに対応したURLショートナー。アクセス解析も搭載。",
+    url: "https://github.com/yourname/link-shortener",
+    tags: ["Next.js", "Node.js", "PostgreSQL"],
+    icon: "🔗"
+  },
+  {
+    title: "md-editor",
+    desc: "リアルタイムプレビュー付きマークダウンエディタ。エクスポート機能あり。",
+    url: "https://github.com/yourname/md-editor",
+    tags: ["React", "TypeScript"],
+    icon: "📝"
+  },
+
+  /* ↓ ここから新しいプロジェクトを追加 ↓
+
+  {
+    title: "my-new-app",
+    desc: "アプリの説明をここに書く。",
+    url: "https://github.com/yourname/my-new-app",
+    tags: ["Vue", "Vite"],
+    icon: "🚀"
+  },
+
+  ↑ 追加したら上の行の末尾カンマを忘れずに ↑ */
+];
+
+/* ============================================================
+   以下は表示ロジックです。通常は編集不要。
+   ============================================================ */
+
+const GH_SVG = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38v-1.34C3.73 14.37 3.28 13 3.28 13c-.36-.92-.88-1.17-.88-1.17-.72-.49.06-.48.06-.48.8.06 1.22.82 1.22.82.71 1.22 1.86.87 2.31.66.07-.52.28-.87.5-1.07-1.77-.2-3.63-.89-3.63-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.65 7.65 0 018 4.07c.68 0 1.36.09 2 .27 1.52-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.94.29.25.54.73.54 1.48v2.19c0 .21.15.46.55.38A8 8 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>`;
+
+function allTags() {
+  const s = new Set();
+  PROJECTS.forEach(p => p.tags.forEach(t => s.add(t)));
+  return ['all', ...Array.from(s).sort()];
+}
+
+function renderFilters(active) {
+  const el = document.getElementById('tag-filter');
+  el.innerHTML = allTags().map(t =>
+    `<button class="tag-btn${t === active ? ' active' : ''}" data-tag="${t}">${t}</button>`
+  ).join('');
+}
+
+function renderGrid(filter) {
+  const list = filter === 'all' ? PROJECTS : PROJECTS.filter(p => p.tags.includes(filter));
+  document.getElementById('count').textContent = list.length;
+  document.getElementById('grid').innerHTML = list.map(p => `
+    <div class="card">
+      <div class="card-top">
+        <div class="card-icon" aria-hidden="true">${p.icon}</div>
+        <a class="gh-link" href="${p.url}" target="_blank" rel="noopener">
+          ${GH_SVG} GitHub ↗
+        </a>
+      </div>
+      <div class="card-title">${p.title}</div>
+      <div class="card-desc">${p.desc}</div>
+      <div class="tech-tags">${p.tags.map(t => `<span class="tech-tag">${t}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+
+let currentFilter = 'all';
+
+document.getElementById('tag-filter').addEventListener('click', e => {
+  const btn = e.target.closest('.tag-btn');
+  if (!btn) return;
+  currentFilter = btn.dataset.tag;
+  renderFilters(currentFilter);
+  renderGrid(currentFilter);
+});
+
+renderFilters(currentFilter);
+renderGrid(currentFilter);
+</script>
+</body>
+</html>
