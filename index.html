@@ -262,6 +262,10 @@
       <span class="filter-label">Tech</span>
       <div class="tag-filter" id="tag-filter"></div>
     </div>
+    <div class="filter-row">
+      <span class="filter-label">Sort</span>
+      <div class="tag-filter" id="sort-filter"></div>
+    </div>
   </div>
   <div class="grid" id="grid"></div>
 
@@ -458,7 +462,7 @@ const PROJECTS = [
     demo: "https://blue18black.github.io/CD-otoshi/",
     category: "推し活",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "ルービックキューブ",
@@ -467,7 +471,7 @@ const PROJECTS = [
     demo: "https://blue18black.github.io/Rubik-s-Cube/",
     category: "ゲーム",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "パックマン",
@@ -476,7 +480,7 @@ const PROJECTS = [
     demo: "https://blue18black.github.io/Pac-Man/",
     category: "ゲーム",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "ボンバーマン",
@@ -485,7 +489,7 @@ const PROJECTS = [
     demo: "",
     category: "ゲーム",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "画像編集",
@@ -494,7 +498,7 @@ const PROJECTS = [
     demo: "https://blue18black.github.io/img-edit/",
     category: "ツール",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "3"
   },
   {
     title: "とき宣顔判定",
@@ -503,7 +507,7 @@ const PROJECTS = [
     demo: "https://blue18black.github.io/tokisen-lockon/",
     category: "ゲーム",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "とき宣顔判定トレーニングエディション",
@@ -512,7 +516,7 @@ const PROJECTS = [
     demo: "",
     category: "ゲーム",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "スライドパズル",
@@ -521,7 +525,7 @@ const PROJECTS = [
     demo: "https://blue18black.github.io/slide-puzzle/",
     category: "推し活",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "CDを分けろ！",
@@ -530,7 +534,7 @@ const PROJECTS = [
     demo: "https://blue18black.github.io/CD-wakero/",
     category: "推し活",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "県章クイズ",
@@ -539,7 +543,7 @@ const PROJECTS = [
     demo: "",
     category: "勉強",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "立体四目並べ",
@@ -548,7 +552,7 @@ const PROJECTS = [
     demo: "",
     category: "",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "ビンゴ",
@@ -557,7 +561,7 @@ const PROJECTS = [
     demo: "",
     category: "",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "3"
   },
   {
     title: "星座",
@@ -566,7 +570,7 @@ const PROJECTS = [
     demo: "",
     category: "",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   {
     title: "コーディネート",
@@ -575,7 +579,7 @@ const PROJECTS = [
     demo: "",
     category: "",
     tags: ["HTML", "CSS", "JavaScript"],
-    icon: "📝"
+    icon: "1"
   },
   /* ↓ ここから新しいプロジェクトを追加 ↓
   {
@@ -633,11 +637,34 @@ function renderTagFilters(active) {
   ).join('');
 }
 
+const SORT_OPTIONS = [
+  { key: 'default', label: 'デフォルト' },
+  { key: 'desc', label: '完成度 高い順' },
+  { key: 'asc', label: '完成度 低い順' }
+];
+
+function completionLevel(p) {
+  const n = parseInt(p.icon, 10);
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function renderSortFilters(active) {
+  const el = document.getElementById('sort-filter');
+  el.innerHTML = SORT_OPTIONS.map(o =>
+    `<button class="tag-btn${o.key === active ? ' active' : ''}" data-sort="${o.key}">${o.label}</button>`
+  ).join('');
+}
+
 function renderGrid() {
   const list = PROJECTS.filter(p =>
     (currentCategory === 'all' || p.category === currentCategory) &&
     (currentTag === 'all' || p.tags.includes(currentTag))
   );
+  if (currentSort === 'desc') {
+    list.sort((a, b) => completionLevel(b) - completionLevel(a));
+  } else if (currentSort === 'asc') {
+    list.sort((a, b) => completionLevel(a) - completionLevel(b));
+  }
   document.getElementById('count').textContent = list.length;
   document.getElementById('grid').innerHTML = list.map(p => `
     <div class="card">
@@ -658,6 +685,7 @@ function renderGrid() {
 
 let currentCategory = 'all';
 let currentTag = 'all';
+let currentSort = 'default';
 
 document.getElementById('category-filter').addEventListener('click', e => {
   const btn = e.target.closest('.tag-btn');
@@ -675,8 +703,17 @@ document.getElementById('tag-filter').addEventListener('click', e => {
   renderGrid();
 });
 
+document.getElementById('sort-filter').addEventListener('click', e => {
+  const btn = e.target.closest('.tag-btn');
+  if (!btn) return;
+  currentSort = btn.dataset.sort;
+  renderSortFilters(currentSort);
+  renderGrid();
+});
+
 renderCategoryFilters(currentCategory);
 renderTagFilters(currentTag);
+renderSortFilters(currentSort);
 renderGrid();
 </script>
 </body>
